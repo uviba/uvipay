@@ -64,11 +64,24 @@ private static $private_key='';
 					exit;
 			}
 		}
+
+		if(!isset($payment_info['uviba_params'])){
+ 
+			if(isset($_GET['uviba_params'])){
+				$payment_info['uviba_params']=$_GET['uviba_params'];
+			}else if(isset($_POST['uviba_params'])){
+				$payment_info['uviba_params']=$_POST['uviba_params'];
+			}else{
+				//not defined
+				$payment_info['uviba_params']=array();
+			}
+		}
 		 $ch = new Curl();;
 		$ch->post('https://api.uviba.com/pay/charge',array(
 			'private_key'=>self::$private_key,
 			'amount'=>$payment_info['amount'],
 			'UvibaToken'=>$payment_info['token'],
+			'uviba_params'=>$payment_info['uviba_params'],
 			));
  
 		try{
