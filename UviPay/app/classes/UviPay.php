@@ -75,6 +75,10 @@ private static $private_key='';
 				//not defined
 				$payment_info['uviba_params']=array();
 			}
+			if(!empty($payment_info['uviba_params'])){
+				//if we gonna sent it, we will delete uviba_params things
+				setcookie('uviba_params', '', time()-1000,'/',false,false);
+			}
 		}
 		 $ch = new Curl();;
 		$ch->post('https://api.uviba.com/pay/charge',array(
