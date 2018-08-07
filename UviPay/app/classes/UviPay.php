@@ -8,6 +8,14 @@ class UviPay{
 
 private static $private_key='';
 
+	public static function bring_affiliates($method='cookie'){
+		if($method=='cookie'){
+			if(isset($_GET['uviba_params'])){
+				setcookie('uviba_params', json_encode($_GET['uviba_params']), time()+86400,'/',false,false);
+			}
+		}
+	}
+
 	public static function setApiPrivateKey($u_private_key=''){
 		return self::$private_key=$u_private_key;
 	}
@@ -111,3 +119,6 @@ return $json_data->success_data;
 	// End of Class
 }
  
+
+
+UviPay::bring_affiliates('cookie'); //should be called and included at every page
