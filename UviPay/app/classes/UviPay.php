@@ -72,7 +72,7 @@ private static $api_version='2.0';
 		return self::setApiPrivateKey($u_private_key);
 	}
 	public static function checkErrors(){
-		//general errors, for example private key
+		//general errors, for example private key.
 		if(trim(self::$private_key)==''){
 			// UviPay_CodeError means some error happened in code
 			// UviPay_ResultError means errors that our server returned
