@@ -223,6 +223,153 @@ return $json_data->success_data;
 //End of function
 	}
 
+//$paylink = UviPay::create_paylink(1000); return {'link_code':'asdas','paylink':'....'}
+public  static function create_paylink($amount){
+	//amount in cents
+	self::checkErrors();
+		if(empty($amount)){
+			throw new UviPay_Exception_Base("UviPay_CodeError",array(
+				'message'=>'Amount to send is not defined in code. Please define it in function.',
+			),"Amount to send is not defined in code. Please define it in function.", 0);
+			exit;
+			
+		}
+		$key_identifier = substr( self::$private_key, 0, 8 );
+		if($key_identifier=='sk_test_'){
+			$isLive=false;
+		}else if($key_identifier=='sk_live_'){
+			$isLive=true;
+		}else{
+			$isLive=false;
+		}
+		$ch = new Curl();
+		$ch->post('https://api.uviba.com/pay/create_paylink',array(
+			'private_key'=>self::$private_key,
+			'isLive'=>$isLive,
+			'amount'=>$amount,
+			'api_version'=>self::$api_version,
+			'api_subversion'=>self::$api_subversion,
+			));
+ //var_dump($ch->response);
+		try{
+ 
+			$json_data = json_decode($ch->response);
+ 
+		}catch(Exception $e){
+			throw new UviPay_Exception_Base("UviPay_CodeError",array(
+						'message'=>'Sorry some errors happened.',
+					),"Sorry some errors happened.", 0);
+					exit;
+		}
+if(is_null($json_data)){
+	throw new UviPay_Exception_Base("UviPay_ResultError",array(
+						'message'=>'Sorry some errors happened.',
+					),"Sorry some errors happened.", 0);
+					exit;
+}
+if(isset($json_data->error_data,$json_data->error)){
+	if($json_data->error===true){
+		if(!empty($json_data->error_data)){
+			throw new UviPay_Exception_Base("UviPay_ResultError",array(
+							'message'=>'Sorry some errors happened.',
+							'error'=>$json_data->error_data,
+						),"Sorry some errors happened.", 0);
+						exit;
+		}
+	}
+	
+	
+}
+
+$json_data->success_data->link=$json_data->success_data->paylink;
+return $json_data->success_data;
+
+
+}
+
+public  static function send_payment($amount,$params=array()){
+	return self::send_payments($amount,$params);	
+}
+
+public  static function send_payments($amount,$params=array()){
+	if(!isset($params['destination'])){
+		$params['destination']='email';
+	}
+	$destination_address='';
+
+	if($params['destination']=='email'){
+		if(!isset($params['email'])){
+			throw new UviPay_Exception_Base("UviPay_CodeError",array(
+					'message'=>'Please define recipient\'s email address.',
+				),"Please define recipient\'s email address.", 0);
+				exit;
+		}
+		$destination_address=$params['email'];
+	}
+	//amount in cents
+	self::checkErrors();
+		if(empty($amount)){
+			throw new UviPay_Exception_Base("UviPay_CodeError",array(
+				'message'=>'Amount to send is not defined in code. Please define it in function.',
+			),"Amount to send is not defined in code. Please define it in function.", 0);
+			exit;
+			
+		}
+		$link_code = self::create_paylink($amount)->link_code;
+		$key_identifier = substr( self::$private_key, 0, 8 );
+		if($key_identifier=='sk_test_'){
+			$isLive=false;
+		}else if($key_identifier=='sk_live_'){
+			$isLive=true;
+		}else{
+			$isLive=false;
+		}
+		$ch = new Curl();
+		$ch->post('https://api.uviba.com/pay/send_payments',array(
+			'private_key'=>self::$private_key,
+			'isLive'=>$isLive,
+			'paylink_code'=>$link_code,
+			'link_methods'=>true,//to be sure if in future, there are other ways to send money
+			'destination'=>$params['destination'],
+			'destination_address'=>$destination_address,
+			'message_to_receiver'=>$params['message'],
+			'api_version'=>self::$api_version,
+			'api_subversion'=>self::$api_subversion,
+			));
+ //var_dump($ch->response);
+		try{
+ 
+			$json_data = json_decode($ch->response);
+ 
+		}catch(Exception $e){
+			throw new UviPay_Exception_Base("UviPay_CodeError",array(
+						'message'=>'Sorry some errors happened.',
+					),"Sorry some errors happened.", 0);
+					exit;
+		}
+if(is_null($json_data)){
+	throw new UviPay_Exception_Base("UviPay_ResultError",array(
+						'message'=>'Sorry some errors happened.',
+					),"Sorry some errors happened.", 0);
+					exit;
+}
+if(isset($json_data->error_data,$json_data->error)){
+	if($json_data->error===true){
+		if(!empty($json_data->error_data)){
+			throw new UviPay_Exception_Base("UviPay_ResultError",array(
+							'message'=>'Sorry some errors happened.',
+							'error'=>$json_data->error_data,
+						),"Sorry some errors happened.", 0);
+						exit;
+		}
+	}
+	
+	
+}
+return $json_data->success;
+
+
+}
 	
 
 
