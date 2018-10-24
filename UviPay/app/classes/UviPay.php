@@ -240,13 +240,6 @@ return $json_data->success_data;
 //End of function
 	}
 
-
-return $json_data->success_data;
-
-
-//End of function
-	}
-
 //$paylink = UviPay::create_paylink(1000); return {'link_code':'asdas','paylink':'....'}
 public  static function create_paylink($amount){
 	//amount in cents
