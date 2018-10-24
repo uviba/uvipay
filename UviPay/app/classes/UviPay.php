@@ -196,7 +196,7 @@ $default_keys=array('uviba_params','token','amount','isLive');
 		}
 //http://localhost/Webproject_oop/api/pay/charge
 //https://api.uviba.com/pay/charge
-		$ch->post('http://localhost/Webproject_oop/api/pay/charge',$request_ar);
+		$ch->post('https://api.uviba.com/pay/charge',$request_ar);
  //die($ch->response);
 		try{
  $raw_response = $ch->response;
