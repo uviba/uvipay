@@ -171,7 +171,12 @@ return $json_data->success_data;
 		}else{
 			$isLive=false;
 		}
-		$ch->post('https://api.uviba.com/pay/charge',array(
+
+if(isset($payment_info['subs'])){
+	$payment_info['subscription']=$payment_info['subs'];
+	unset($payment_info['subs']);
+}
+		$request_ar = array(
 			'sign'=>hash('sha256', trim($payment_info['token']).'::'.trim(self::$private_key)),
 			'isLive'=>$isLive,
 			'amount'=>$payment_info['amount'],
@@ -179,10 +184,22 @@ return $json_data->success_data;
 			'uviba_params'=>$payment_info['uviba_params'],
 			'api_version'=>self::$api_version,
 			'api_subversion'=>self::$api_subversion,
-			));
- //var_dump($ch->response);
+			);
+
+$default_keys=array('uviba_params','token','amount','isLive');
+		foreach ($payment_info as $key => $value) {
+			//subscription=true or subs=true
+			//trial_days, trial_ends, subs_plan, subs_package_name
+			if(!in_array($key, $default_keys)){
+				$request_ar[$key]=$value;
+			}
+		}
+//http://localhost/Webproject_oop/api/pay/charge
+//https://api.uviba.com/pay/charge
+		$ch->post('http://localhost/Webproject_oop/api/pay/charge',$request_ar);
+ //die($ch->response);
 		try{
- 
+ $raw_response = $ch->response;
 			$json_data = json_decode($ch->response);
  
 		}catch(Exception $e){
@@ -215,6 +232,13 @@ if(isset($json_data->error_data,$json_data->error)){
 	
 	
 }
+
+
+return $json_data->success_data;
+
+
+//End of function
+	}
 
 
 return $json_data->success_data;
