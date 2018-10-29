@@ -114,6 +114,107 @@ return $json_data->success_data;
 
 	}
 
+	
+	
+	public static function verifyRequest($request_id){
+		if(is_array($request_id)){
+			$request_id = $request_id['webhook_token'];
+		}
+		$response =  self::APIRequest('/Webhook/verifySubscription',array(
+			'request_id'=>$request_id,
+		));
+		if($response->error==false){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+
+	public static function APIRequest($req_url='',$req_info=array()){
+		self::checkErrors();
+		if(strpos($req_url, 'http')!==0){
+			//right in front of page is not http
+			$req_url = "https://api.uviba.com/pay/".$req_url;
+		}
+		$data = array();
+		$data['error'] = false;
+		$data['error_data'] = array();
+		$data['error_data']['message'] = '';
+		$data['success_data'] = array();
+		if(empty($req_url)){
+			$data['error'] = true;
+			$data['error_data']['message']='Request URL is not defined';
+		}else if(empty($req_info)){
+			$data['error'] = true;
+			$data['error_data']['message']='Request URL is not defined';
+		}
+
+		if(!isset($req_info['uviba_params'])){
+ 
+			if(isset($_GET['uviba_params'])){
+				$req_info['uviba_params']=$_GET['uviba_params'];
+			}else if(isset($_POST['uviba_params'])){
+				$req_info['uviba_params']=$_POST['uviba_params'];
+			}else{
+				//not defined
+				$req_info['uviba_params']=array();
+			}
+			if(!empty($req_info['uviba_params'])){
+				//if we gonna sent it, we will delete uviba_params things
+				setcookie('uviba_params', '', time()-1000,'/',false,false);
+			}
+		}
+	//	 $ch = new Curl();
+
+		$key_identifier = substr( self::$private_key, 0, 8 );
+		if($key_identifier=='sk_test_'){
+			$isLive=false;
+		}else if($key_identifier=='sk_live_'){
+			$isLive=true;
+		}else{
+			$isLive=false;
+		}
+
+		$request_ar = array(
+			//'sign'=>hash('sha256', trim($payment_info['token']).'::'.trim(self::$private_key)),
+			'isLive'=>$isLive,
+			'private_key'=>self::$private_key,
+			'api_version'=>self::$api_version,
+			'api_subversion'=>self::$api_subversion,
+			'uviba_params'=>$req_info['uviba_params'],
+			);
+
+$default_keys=array('uviba_params','isLive');
+		foreach ($req_info as $key => $value) {
+			//subscription=true or subs=true
+			//trial_days, trial_ends, subs_plan, subs_package_name
+			if(!in_array($key, $default_keys)){
+				$request_ar[$key]=$value;
+			}
+		}
+//http://localhost/Webproject_oop/api/pay/charge
+//https://api.uviba.com/pay/charge
+ $ch = new Curl();
+		$ch->post($req_url,$request_ar);
+	//	echo$req_url;
+ //dd($ch->response);
+		try{
+ $raw_response = $ch->response;
+			$json_data = json_decode($ch->response);
+ 
+		}catch(Exception $e){
+			throw new UviPay_Exception_Base("UviPay_CodeError",array(
+						'message'=>'Sorry some errors happened.',
+					),"Sorry some errors happened.", 0);
+					exit;
+		}
+
+		return $json_data;
+
+		
+	}
+	
 
 	public static function charge($payment_info=array()){
 		self::checkErrors();
