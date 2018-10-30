@@ -116,11 +116,11 @@ return $json_data->success_data;
 
 	
 	
-	public static function verifyRequest($request_id){
+	public static function verifyRequest($request_id,$req_mode='subscription'){
 		if(is_array($request_id)){
 			$request_id = $request_id['webhook_token'];
 		}
-		$response =  self::APIRequest('/Webhook/verifySubscription',array(
+		$response =  self::APIRequest('/Webhook/verifyRequest?req_mode='.$req_mode,array(
 			'request_id'=>$request_id,
 		));
 		if($response->error==false){
