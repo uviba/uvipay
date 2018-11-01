@@ -118,7 +118,12 @@ return $json_data->success_data;
 	
 	public static function verifyRequest($request_id,$req_mode='subscription'){
 		if(is_array($request_id)){
-			$request_id = $request_id['webhook_token'];
+			if(isset($request_id['webhook_token'])){
+				$request_id = $request_id['webhook_token'];
+			}else if(isset($request_id['request_id']){
+				$request_id = $request_id['request_id'];
+			}
+			
 		}
 		$response =  self::APIRequest('/Webhook/verifyRequest?req_mode='.$req_mode,array(
 			'request_id'=>$request_id,
