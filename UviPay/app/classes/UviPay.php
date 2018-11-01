@@ -120,7 +120,7 @@ return $json_data->success_data;
 		if(is_array($request_id)){
 			if(isset($request_id['webhook_token'])){
 				$request_id = $request_id['webhook_token'];
-			}else if(isset($request_id['request_id']){
+			}else if(isset($request_id['request_id'])){
 				$request_id = $request_id['request_id'];
 			}
 			
@@ -130,10 +130,10 @@ return $json_data->success_data;
 		));
 		if(!is_null($response)){
 		    if($response->error==false){
-			return true;
+			    return true;
 		    }
 		}
-		return false
+		return false;
 	}
 
 
