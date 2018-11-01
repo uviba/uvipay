@@ -128,11 +128,12 @@ return $json_data->success_data;
 		$response =  self::APIRequest('/Webhook/verifyRequest?req_mode='.$req_mode,array(
 			'request_id'=>$request_id,
 		));
-		if($response->error==false){
+		if(!is_null($response)){
+		    if($response->error==false){
 			return true;
-		}else{
-			return false;
+		    }
 		}
+		return false
 	}
 
 
