@@ -449,11 +449,13 @@ public  static function send_payments($amount,$params=array()){
 			$isLive=false;
 		}
 		if(!isset($params['takeback'])){
-			if($params['take_back']){
-				$params['takeback']=0;
-			}else{
+			if(isset($params['take_back'])){
 				$params['takeback']=$params['take_back'];
+			}else{
+				$params['takeback']=0;
 			}
+		}else{
+			//then already setted
 		}
 		$ch = new Curl();
 	$request_ar=array(
@@ -481,7 +483,7 @@ $default_keys=array('destination','message',
 			'takeback',
 			'take_back',
 );
-		foreach ($payment_info as $key => $value) {
+		foreach ($params as $key => $value) {
 			//subscription=true or subs=true
 			//trial_days, trial_ends, subs_plan, subs_package_name
 			if(!in_array($key, $default_keys)){
