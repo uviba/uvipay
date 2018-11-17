@@ -448,8 +448,15 @@ public  static function send_payments($amount,$params=array()){
 		}else{
 			$isLive=false;
 		}
+		if(!isset($params['takeback'])){
+			if($params['take_back']){
+				$params['takeback']=0;
+			}else{
+				$params['takeback']=$params['take_back'];
+			}
+		}
 		$ch = new Curl();
-		$ch->post('https://api.uviba.com/pay/send_payments',array(
+	$request_ar=array(
 			'private_key'=>self::$private_key,
 			'isLive'=>$isLive,
 			'paylink_code'=>$link_code,
@@ -459,7 +466,31 @@ public  static function send_payments($amount,$params=array()){
 			'message_to_receiver'=>$params['message'],
 			'api_version'=>self::$api_version,
 			'api_subversion'=>self::$api_subversion,
-			));
+			'takeback'=>$params['takeback'],
+			);
+$default_keys=array('destination','message',
+			'private_key',
+			'isLive',
+			'paylink_code',
+			'link_methods',//to be sure if in future, there are other ways to send money
+			'destination',
+			'destination_address',
+			'message_to_receiver',
+			'api_version',
+			'api_subversion',
+			'takeback',
+			'take_back',
+);
+		foreach ($payment_info as $key => $value) {
+			//subscription=true or subs=true
+			//trial_days, trial_ends, subs_plan, subs_package_name
+			if(!in_array($key, $default_keys)){
+				$request_ar[$key]=$value;
+			}
+		}
+
+
+		$ch->post('https://api.uviba.com/pay/send_payments',$request_ar);
  //var_dump($ch->response);
 		try{
  
@@ -490,11 +521,57 @@ if(isset($json_data->error_data,$json_data->error)){
 	
 	
 }
-return $json_data->success;
+$data_ar = array(
+'id'=>$json_data->send_id,
+'amount'=>$amount,
+);
+return (object) $data_ar;
 
 
 }
+
+public static function take_payment_back($req_info){
 	
+	/*array(
+			'send_id'=>$send_id,
+			'amount'=>0.00, //should not be more than requested
+			//maybe email in the feature
+		)*/
+		$json_data =  self::APIRequest('/takeback'.$req_mode,$req_info);
+		if(!is_null($response)){
+		    if($json_data->error==false){
+			    return true;
+		    }
+		}
+		
+
+
+if(is_null($json_data)){
+	throw new UviPay_Exception_Base("UviPay_ResultError",array(
+						'message'=>'Sorry some errors happened.',
+					),"Sorry some errors happened.", 0);
+					exit;
+}
+if(isset($json_data->error_data,$json_data->error)){
+
+
+	if($json_data->error===true){
+		if(!empty($json_data->error_data)){
+			throw new UviPay_Exception_Base("UviPay_ResultError",array(
+							'message'=>'Sorry some errors happened.',
+							'error'=>$json_data->error_data,
+						),"Sorry some errors happened.", 0);
+						exit;
+		}
+	}
+	
+	
+}
+
+//charge_id will come
+return $json_data->success_data;
+
+}	
 
 
 public static function update_lib($update_lib_info){
