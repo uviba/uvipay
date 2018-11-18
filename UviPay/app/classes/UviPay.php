@@ -540,7 +540,7 @@ public static function take_payment_back($req_info){
 			//maybe email in the feature
 		)*/
 		$json_data =  self::APIRequest('/takeback',$req_info);
-		if(!is_null($response)){
+		if(!is_null($json_data)){
 		    if($json_data->error==false){
 			    return true;
 		    }
