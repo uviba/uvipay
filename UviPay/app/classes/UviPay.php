@@ -139,7 +139,7 @@ return $json_data->success_data;
 
 	public static function APIRequest($req_url='',$req_info=array()){
 		self::checkErrors();
-		if(strpos($req_url, 'http')!==0){
+		if(strpos($req_url, '://')!==0){
 			//right in front of page is not http
 			$req_url = "https://api.uviba.com/pay/".$req_url;
 		}
